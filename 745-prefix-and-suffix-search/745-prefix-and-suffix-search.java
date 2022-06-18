@@ -1,31 +1,48 @@
 class WordFilter {
-  public WordFilter(String[] words) {
-    for (int i = 0; i < words.length; ++i) {
-      final String word = words[i];
-      List<String> prefixes = new ArrayList<>();
-      List<String> suffixes = new ArrayList<>();
-      for (int j = 0; j <= word.length(); ++j) {
-        final String prefix = word.substring(0, j);
-        final String suffix = word.substring(j);
-        prefixes.add(prefix);
-        suffixes.add(suffix);
-      }
-      for (final String prefix : prefixes)
-        for (final String suffix : suffixes)
-          keyToIndex.put(prefix + '_' + suffix, i);
+    TrieNode root;
+    String[] words;
+
+    public WordFilter(String[] words) {
+        root = new TrieNode();
+        TrieNode node = root;
+        for (int i = 0; i < words.length; i++) {
+            for (char ch : words[i].toCharArray()) {
+                if (root.child[ch - 'a'] == null) {
+                    root.child[ch - 'a'] = new TrieNode();
+                }
+
+                root.child[ch - 'a'].indexList.add(i);
+                root = root.child[ch - 'a'];
+            }
+            root = node;
+        }
+
+        this.words = words;
     }
-  }
 
-  public int f(String prefix, String suffix) {
-    final String key = prefix + '_' + suffix;
-    if (keyToIndex.containsKey(key))
-      return keyToIndex.get(key);
-    return -1;
-  }
+    public int f(String prefix, String suffix) {
+        TrieNode node = root;
+        for (char ch : prefix.toCharArray()) {
+            node = node.child[ch - 'a'];
+            if (node == null) {
+                return -1;
+            }
+        }
 
-  private Map<String, Integer> keyToIndex = new HashMap<>();
+        List<Integer> list = node.indexList;
+        for (int i = list.size() - 1; i >= 0; i--) {
+            if (words[list.get(i)].endsWith(suffix)) {
+                return list.get(i);
+            }
+        }
+        return -1;
+    }
+
+    private static class TrieNode {
+        TrieNode[] child = new TrieNode[26];
+        List<Integer> indexList = new ArrayList<>();
+    }
 }
-
 
 /**
  * Your WordFilter object will be instantiated and called as such:
