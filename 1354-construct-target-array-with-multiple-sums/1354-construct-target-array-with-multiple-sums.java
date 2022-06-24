@@ -1,19 +1,19 @@
 class Solution {
     public boolean isPossible(int[] target) {
-        Queue<Integer> pq = new PriorityQueue<>((a,b) -> b - a);
-        int sum = 0;
-        for (int num : target) {
-            sum += num;
-            pq.add(num);
+        long sum = 0;
+        int max = 0, index = 0;
+        for (int i = 0; i < target.length; i++) {
+            sum += target[i];
+            if (target[i] > max) {
+                max = target[i];
+                index = i;
+            }
         }
-        while (pq.peek() != 1) {
-            int num = pq.poll();
-            sum -= num;
-            if (num <= sum || sum < 1) return false;
-            num %= sum;
-            sum += num;
-            pq.add(num > 0 ? num : sum);
-        }
-        return true;
+        sum -= max;
+        if (sum == 1 || max == 1) return true;
+        if (max < sum || sum == 0 || max % sum == 0) return false;
+        max %= sum;
+        target[index] = max;
+        return isPossible(target);
     }
 }
