@@ -14,20 +14,28 @@
  * }
  */
 class Solution {
-    public TreeNode buildTree(int[] P, int[] I) {
-        Map<Integer, Integer> M = new HashMap<>();
-        for (int i = 0; i < I.length; i++)
-            M.put(I[i], i);
-        return splitTree(P, M, 0, 0, I.length-1);
+    private int index = 0;
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        return buildTree(preorder, inorder, 0, preorder.length - 1);
     }
+    private TreeNode buildTree(int[] preorder, int[] inorder, int start, int end) {
+        // if there are no left and right children
+        if(end < start) return null;
+        
+        TreeNode tree = new TreeNode(preorder[index++]);
+        //if(start == end) return tree;
+    
+        int rootIndex = findIndex(inorder, start, end, tree.val);
 
-    private TreeNode splitTree(int[] P, Map<Integer, Integer> M, int pix, int ileft, int iright) {
-        int rval = P[pix], imid = M.get(rval);
-        TreeNode root = new TreeNode(rval);            
-        if (imid > ileft)
-            root.left = splitTree(P, M, pix+1, ileft, imid-1);
-        if (imid < iright)
-            root.right = splitTree(P, M, pix+imid-ileft+1, imid+1, iright);
-        return root;
+        tree.left = buildTree(preorder, inorder, start, rootIndex - 1);
+        tree.right = buildTree(preorder, inorder, rootIndex + 1, end);
+        return tree;
+    }
+    private int findIndex(int[] inorder, int start, int end, int val) {
+        while(start < end && inorder[start] != val && inorder[end] != val) {
+            start++;
+            end--;
+        }
+        return inorder[start] == val ? start : end;
     }
 }
