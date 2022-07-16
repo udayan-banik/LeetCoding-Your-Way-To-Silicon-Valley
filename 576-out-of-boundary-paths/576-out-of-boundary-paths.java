@@ -1,25 +1,30 @@
 class Solution {
+    int[][][] cache;
+    int MOD = 1000_000_007;
     public int findPaths(int m, int n, int maxMove, int startRow, int startColumn) {
-        if (maxMove == 0) return 0;
-        int[][] dpCurr = new int[m+2][n+2], dpLast = new int[m+2][n+2];
-        for (int i = 1; i <= m; i++) {
-            dpCurr[i][1]++;
-            dpCurr[i][n]++;
+        cache = new int[m][n][maxMove + 1];
+        for(int[][] cc : cache) {
+            for(int[] c : cc) {
+                Arrays.fill(c, -1);
+            }
         }
-        for (int j = 1; j <= n; j++) {
-            dpCurr[1][j]++;
-            dpCurr[m][j]++;
+        return f(m, n, maxMove, startRow, startColumn);
+    }
+    int f(int m, int n, int max, int r, int c) {
+        if(r < 0 || c < 0 || r == m || c == n) {
+            return 1;
         }
-        int ans = dpCurr[startRow+1][startColumn+1];
-        for (int d = 1; d < maxMove; d++) {
-            int[][] temp = dpCurr;
-            dpCurr = dpLast;
-            dpLast = temp;
-            for (int i = 1; i <= m; i++)
-                for (int j = 1; j <= n; j++)
-                    dpCurr[i][j] = (int)(((long)dpLast[i-1][j] + dpLast[i+1][j] + dpLast[i][j-1] + dpLast[i][j+1]) % 1000000007L);
-            ans = (ans + dpCurr[startRow+1][startColumn+1]) % 1000000007;
+        if(max == 0) {
+            return 0;
         }
-        return ans;
+        if(cache[r][c][max] > -1) {
+            return cache[r][c][max];
+        }
+        long l = f(m, n, max - 1, r - 1, c) % MOD;
+        l += f(m, n, max - 1, r + 1, c) % MOD;
+        l += f(m, n, max - 1, r, c + 1) % MOD;
+        l += f(m, n, max - 1, r, c - 1) % MOD;
+        cache[r][c][max] = (int)(l % MOD);
+        return cache[r][c][max];
     }
 }
