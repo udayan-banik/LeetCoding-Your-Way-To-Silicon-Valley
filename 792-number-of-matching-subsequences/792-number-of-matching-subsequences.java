@@ -1,38 +1,41 @@
 class Solution {
-    public int numMatchingSubseq(String S, String[] words) {
-        ArrayList<Node>[] heads = new ArrayList[26];
-        for (char i = 'a'; i <= 'z'; i++) {
-            heads[i - 'a'] = new ArrayList<>();
-        }
-        
-        // match each word from index 0
+    public int numMatchingSubseq(String s, String[] words) {
+     Word[] heads = new Word[26];
+        for (int i = 0; i < 26; i++) heads[i] = new Word("", 0);
         for (String word : words) {
-            heads[word.charAt(0) - 'a'].add(new Node(word, 0));
+            Word head = heads[word.charAt(0) - 'a'];
+            Word newWord = new Word(word, 0);
+            newWord.next = head.next;
+            head.next = newWord;
         }
-        
-        int ret = 0;
-        for (char c : S.toCharArray()) {
-            ArrayList<Node> waiting = new ArrayList<>(heads[c - 'a']);
-            heads[c - 'a'].clear();
-            for (Node n : waiting) {
-                n.nextIndex++;
-                if (n.nextIndex == n.word.length()) {
-                    ret++;
+        int ans = 0;
+        for (char c : s.toCharArray()) {
+            Word curHead = heads[c - 'a'];
+            Word cur = curHead.next;
+            curHead.next = null;
+            while (cur != null) {
+                Word next = cur.next;
+                if (cur.index == cur.word.length() - 1) {
+                    ans++;
                 } else {
-                    heads[n.word.charAt(n.nextIndex) - 'a'].add(n);
+                    cur.index++;
+                    Word nextHead = heads[cur.word.charAt(cur.index) - 'a'];
+                    cur.next = nextHead.next;
+                    nextHead.next = cur;
                 }
+                cur = next;
             }
         }
-        
-        return ret;
+        return ans;
     }
     
-    class Node {
+    class Word {
         String word;
-        int nextIndex;
-        Node(String word, int index) {
+        int index;
+        Word next;
+        Word(String word, int index) {
             this.word = word;
-            this.nextIndex = index;
+            this.index = index;
         }
-    }
+}
 }
