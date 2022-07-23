@@ -1,29 +1,42 @@
 class Solution {
-    public List<Integer> countSmaller(int[] nums) {
-        Integer[] ans = new Integer[nums.length];
-        List<Integer> sorted = new ArrayList<Integer>();
-        for(int i = nums.length - 1; i >= 0; i--){
-            int index = findIndex(sorted, nums[i]);
-            ans[i] = index;
-            sorted.add(index, nums[i]); // bad
-        } // for i
-        return Arrays.asList(ans);
-    } // smaller
+    private int maxN = (int) 2e4 + 9;
+    private int[] bit = new int[maxN];
+    private int offset = (int) 1e4 + 1;
+    private int low_bit(int x) {
+        return x & -x;
+    }
     
-    public int findIndex(List<Integer> sorted, int cur){
-        if(sorted.size() == 0)  return 0;
-        int start = 0, end = sorted.size() - 1;
-        if(sorted.get(end) < cur)   return end + 1;
-        if(sorted.get(start) >= cur) return start;
-        while(start < end){
-            int mid = start + (end - start)/2;
-            if(sorted.get(mid) < cur){
-                start = mid + 1;
-            }else{
-                end = mid;
-            }
+    private void edit(int ind, int delta) {
+        for (int i = ind; i < maxN; i += low_bit(i)) {
+            bit[i] += delta;
         }
-        if (sorted.get(start) >= cur) return start;
-        return end;
-    } // findIndex
+    }
+    
+    private int query(int ind) {
+        int result = 0;
+        for (int i = ind; i > 0; i -= low_bit(i)) {
+            result += bit[i];
+        }
+        
+        return result;
+    }
+    
+    public List<Integer> countSmaller(int[] nums) {
+        int n = nums.length;
+        Integer[] answer = new Integer[n];
+        
+        for (int i = n - 1; i >= 0; i--) {
+            edit(nums[i] + offset, 1);
+            answer[i] = query(nums[i] + offset - 1);
+        }
+        
+        return Arrays.asList(answer);
+    }
 }
+
+/* BIT. 
+go from right to left, query # of smaller, and then add myself to BIT
+need to offset so that nums start at 1 
+time O(nlogn)
+space O(maxN) for the bit[] array
+*/
