@@ -1,27 +1,31 @@
 class Solution {
-    public String convert(String s, int nRows) {
-        String[] helper = new String[nRows];
-        for (int i = 0; i < nRows; i ++){
-            helper[i] = "";
-        }
-        int row = 0;
-        int delta = 1;
-        for (int i = 0; i < s.length(); i ++){
-            char c = s.charAt(i);
-            helper[row] += c;
-            if (row == nRows - 1){
-                delta = -1;
-            }
-            else if (row == 0){
-                delta = 1;
-            }
-            row = row + delta;
-            row = Math.max(0, row);
-        }//for
-        String result = "";
-        for (int i = 0; i < nRows && s.length() > 0; i ++){
-            result += helper[i];
-        }
-        return result;
+    public String convert(String s, int numRows) {
+        
+        int len = s.length();
+        if(numRows==1)return s;
+        StringBuilder res = new StringBuilder();
+        int rotLen=2*numRows-2;
+       for(int i = 1;i<=numRows;i++){
+           
+               Boolean down = true;
+               int cdDown = rotLen - (i-1)*2;
+               int cdUp = rotLen - cdDown;
+               
+               for(int j = i-1;j<s.length();){
+                   res.append(s.charAt(j));
+                   if(i==1||i==numRows){
+                       j+=rotLen;
+                   }else if(down){
+                       j+=cdDown;
+                       down = false;
+                   }
+                   else{
+                       j+=cdUp;
+                       down = true;
+                   }
+               }
+           
+       }
+        return res.toString();
     }
 }
