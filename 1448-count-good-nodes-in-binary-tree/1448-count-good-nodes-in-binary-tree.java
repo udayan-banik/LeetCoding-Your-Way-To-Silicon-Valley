@@ -15,27 +15,30 @@
  */
 class Solution {
     public int goodNodes(TreeNode root) {
-        if (root == null) {
-            return 0;
-        }
-        int val = root.val;
-        return 1 
-            + recGoodNodes(root.left, val) 
-            + recGoodNodes(root.right, val);
+        int[] count = new int[1];
+        int max = root.val;
+        
+        countNodes(root, count, max);
+        
+        return count[0];
     }
     
-    public int recGoodNodes(TreeNode node, int max) {
-        if (node == null) {
-            return 0;
+    private void countNodes(TreeNode root, int[] count, int max) {
+        if (root == null) {
+            return;
         }
-        int res = 0;
-        int val = node.val;
-        if (val >= max) {
-            max = val;
-            res = 1;
+        
+        if (root.val >= max) {
+            count[0]++;
+            max = root.val;
         }
-        res += recGoodNodes(node.left, max);
-        res += recGoodNodes(node.right, max);
-        return res;
-    }
+        
+        if (root.left != null) {
+            countNodes(root.left,count,max);
+        }
+        
+        if (root.right != null) {
+            countNodes(root.right,count,max);
+        }
+    } 
 }
