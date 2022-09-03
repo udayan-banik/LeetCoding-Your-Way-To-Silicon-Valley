@@ -1,29 +1,38 @@
 class Solution {
-    public int[] numsSameConsecDiff(int N, int K) {
-        List<Integer> list = new ArrayList<>();
-        if(N==0)
-            return new int[0];
-        if(N==1)
-			list.add(0);      // edge case
-        dfs(N, K, list, 0);
-        return list.stream().mapToInt(i->i).toArray();   //list.toArray(new int[list.size()]); doesn't work for primitives
-    }
-    public void dfs(int N, int K, List<Integer> list, int number){
-        if(N == 0){   // base case, if you have added enough number of integers then append it to list; Here N is used as the total digits in temporary number 
-            list.add(number);
-            return ;
+    public int[] numsSameConsecDiff(int n, int k) {
+        ArrayList<Integer> res = new ArrayList<>();
+        if(n == 1) {
+            return new int[] {0,1,2,3,4,5,6,7,8,9,0};
         }
-        for(int i=0; i<10; ++i){
-            if(i==0 && number ==0)    // Do not add 0 at begining of a number
-                continue;
-            else if(number == 0 && i!=0){     // base case, we add all the digits when we do not have any previous digit to check if difference = K
-                dfs(N-1, K, list, i);
-            }
-            else{
-                if(Math.abs((number%10) - i )==K){
-                    dfs(N-1, K, list, number*10+i);    // General dfs to add the digit at the units place and reducing the number of digits by 1.
-                }
-            }
+        
+        for(int i=1; i<=9; i++) {
+            dfs(n, k, i, 0, i, res);
+        }
+        
+        int[] arr = new int[res.size()];
+        for(int i=0; i<res.size(); i++) {
+            arr[i] = res.get(i);
+        }
+        
+        return arr;
+    }
+    
+    public static void dfs(int n, int k, int curr, int index,
+                          int prev, ArrayList<Integer> res) {
+        if(index == n - 1) {
+            res.add(curr);
+            return;
+        }
+        
+        int next = prev + k;
+        if(next < 10) {
+            dfs(n, k, (curr * 10) + next, index + 1, next, res);
+        }
+        
+        next = prev - k;
+        
+        if(k != 0 && next >= 0) {
+            dfs(n, k, (curr * 10) + next, index + 1, next, res);
         }
     }
 }
