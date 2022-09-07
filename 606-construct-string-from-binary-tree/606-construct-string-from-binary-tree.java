@@ -14,17 +14,30 @@
  * }
  */
 class Solution {
-  public String tree2str(TreeNode t) {
-    return dfs(t);
-  }
-
-  private String dfs(TreeNode root) {
-    if (root == null)
-      return "";
-    if (root.right != null)
-      return root.val + "(" + dfs(root.left) + ")(" + dfs(root.right) + ")";
-    if (root.left != null)
-      return root.val + "(" + dfs(root.left) + ")";
-    return root.val + "";
-  }
+    
+    void visit(TreeNode node, StringBuilder str) {
+        str.append(node.val);
+        
+        if (node.left == null && node.right == null) return;
+        
+        if (node.left != null) {
+            str.append("(");
+            visit(node.left, str);
+            str.append(")");
+        } else {
+            str.append("()");
+        }
+        
+        if (node.right != null) {
+            str.append("(");
+            visit(node.right, str);
+            str.append(")");
+        }
+    }
+    
+    public String tree2str(TreeNode root) {
+        StringBuilder builder = new StringBuilder();
+        visit(root, builder);
+        return builder.toString();
+    }
 }
