@@ -1,26 +1,34 @@
+// Thoughts
+
+//      
+// sort tokens ->  100 200 300 400  power = 200
+//                  l           r
+//  get more power with "r" and more score with "l"    
+//
+
 class Solution {
-  public int bagOfTokensScore(int[] tokens, int power) {
-    int ans = 0;
-    int score = 0;
-    int i = 0;                 // index of smallest token
-    int j = tokens.length - 1; // index of largest token
-
-    Arrays.sort(tokens);
-
-    while (i <= j && (power >= tokens[i] || score > 0)) {
-      while (i <= j && power >= tokens[i]) {
-        // play the smallest face up
-        power -= tokens[i++];
-        ++score;
-      }
-      ans = Math.max(ans, score);
-      if (i <= j && score > 0) {
-        // play the largest face down
-        power += tokens[j--];
-        --score;
-      }
+    public int bagOfTokensScore(int[] tokens, int power) {
+        
+        Arrays.sort(tokens);
+        int res=0;
+        
+        int l=0, r=tokens.length-1,score=0;
+        
+        while(l<=r){
+            if(power<tokens[l]){
+                if(score>0){
+                    power+=tokens[r--];
+                    score--;
+                }else{
+                    return res;
+                }
+            }else{
+                power-=tokens[l++];
+                score++;
+                res = Math.max(score,res);
+            }
+        }
+        
+        return res;
     }
-
-    return ans;
-  }
 }
