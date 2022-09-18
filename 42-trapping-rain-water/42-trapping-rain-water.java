@@ -1,30 +1,42 @@
+/*
+
+maxLeftHeight =  [0,0,1,1,2,2,2,2,3,3,3,3]
+maxRightHeight = [3,3,3,3,3,3,3,2,2,2,1,0]
+min = [0,0,1,1,2,2,2,2,2,2,1,0]
+
+waterAmt = 0;
+
+
+*/
 class Solution {
     public int trap(int[] height) {
-        int left = 0, right = height.length - 1;
-        int left_max = 0, right_max = 0;
-        int ans = 0;
+        int[] maxLeftHeight = new int[height.length];
+        int[] maxRightHeight = new int[height.length];
+        int[] minHeight = new int[height.length];
+        int waterCount = 0;
         
-        while (left < right) {
-            if (height[left] < height[right]) {
-                if (height[left] >= left_max) {
-                    left_max = height[left];
-                }
-                else {
-                    ans += left_max - height[left];
-                } 
-                ++left;
-            }
-            
-            else {
-                if (height[right] >= right_max) {
-                    right_max = height[right];
-                }
-                else {
-                    ans += right_max - height[right];
-                }
-                --right;      
-            }
+        int max = 0;
+        for (int i = 0; i < height.length; i++) {
+            maxLeftHeight[i] = max;
+            if (height[i] > max)
+                max = height[i];
         }
-        return ans;
+        
+        max = 0;
+        for (int i = height.length - 1; i >= 0; i--) {
+            maxRightHeight[i] = max;
+            if (height[i] > max)
+                max = height[i];
+            
+            minHeight[i] = Math.min(maxLeftHeight[i], maxRightHeight[i]);
+        }
+        
+        for (int i = 0; i < height.length; i++) {
+            int diff = minHeight[i] - height[i];
+            if (diff > 0)
+                waterCount += diff;
+        }
+        
+        return waterCount;
     }
 }
