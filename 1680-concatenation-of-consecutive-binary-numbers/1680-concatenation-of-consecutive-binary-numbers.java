@@ -1,15 +1,17 @@
 class Solution {
     public int concatenatedBinary(int n) {
-        int res = 0;
-        int MOD = (int) 1_000_000_007;
+        int MOD = 1_000_000_000 + 7;
         
-        for (int i = 1; i <= n; i++) {
-            String str = Integer.toBinaryString(i);
-            for (int s = 0; s < str.length(); s++) {
-                res = ((res * 2) + (str.charAt(s) - '0')) % MOD;
+        long sum = 0;
+        int len = 0;
+        
+        for (int i=1; i<=n; i++) {
+            if ((i & (i-1)) == 0) {
+                len++;
             }
+            sum = ((sum << len) | i) % MOD;
         }
         
-        return res;
+        return (int)sum;
     }
 }
