@@ -1,55 +1,60 @@
 class Solution {
-    class Point {
-        int pos, height;
-        public Point(int pos, int height) {
-            this.pos = pos;
-            this.height = height;
-        }
-    }
     public List<List<Integer>> getSkyline(int[][] buildings) {
-        List<List<Integer>> rst = new ArrayList<>();
-        if (isInvalid(buildings)) return rst;
-        
-        // init: sort points by pos
-        PriorityQueue<Point> queue = buildQueue(buildings);
-
-        // Mark height and calcualte the outline point.
-        PriorityQueue<Integer> maxHeightQueue = new PriorityQueue<>(Collections.reverseOrder());
-        maxHeightQueue.offer(0);
-        int prevPeak = maxHeightQueue.peek();
-
-        // process
-        while (!queue.isEmpty()) {
-            Point point = queue.peek();
-            
-            // 1) Add and trim all points on one X position
-            while (!queue.isEmpty() && queue.peek().pos == point.pos) {
-                point = queue.poll();
-                if (point.height < 0) maxHeightQueue.offer(-point.height);
-                else maxHeightQueue.remove(point.height); // remove 1 instance of this height, which marks end point of a building            
-            }
-            // 2) Add peak
-            int currPeak = maxHeightQueue.peek();
-            if (currPeak != prevPeak) {
-                List list = new ArrayList<>();
-                list.add(point.pos);
-                list.add(currPeak);
-                rst.add(list);
-                prevPeak = currPeak;
-            }
-        }
-        return rst;
+        return getSkyline(0, buildings.length - 1, buildings);
     }
     
-    private PriorityQueue<Point> buildQueue(int[][] buildings) {
-        PriorityQueue<Point> queue = new PriorityQueue<>((a, b) -> a.pos - b.pos);
-        for (int i = 0; i < buildings.length; i++) {
-            queue.offer(new Point(buildings[i][0], -buildings[i][2])); // mark starting height negative
-            queue.offer(new Point(buildings[i][1], buildings[i][2]));
+    public List<List<Integer>> getSkyline(int from, int to, int[][] buildings) {
+        if (from == to) {
+            List<List<Integer>> res = new ArrayList<>();
+            res.add(List.of(buildings[from][0], buildings[from][2]));
+            res.add(List.of(buildings[from][1], 0));
+            return res;
         }
-        return queue;
+        
+        int mid = from + (to - from) / 2;
+        List<List<Integer>> leftRet = getSkyline(from, mid, buildings);
+        List<List<Integer>> rightRet = getSkyline(mid + 1, to, buildings);
+        return merge(leftRet, rightRet);
     }
-    private boolean isInvalid(int[][] buildings) {
-        return buildings == null || buildings.length == 0 || buildings[0] == null || buildings[0].length == 0;
+    
+    private List<List<Integer>> merge(List<List<Integer>> left, List<List<Integer>> right) {
+        List<List<Integer>> res = new ArrayList<>();
+        int i = 0, j = 0;
+        int ly = 0, ry = 0;
+        
+        while (i < left.size() && j < right.size()) {
+            List<Integer> l = left.get(i);
+            List<Integer> r = right.get(j);
+            int curX = 0;
+            
+            if (l.get(0) < r.get(0)) {
+                curX = l.get(0);
+                ly = l.get(1);
+                i++;
+            } else if (l.get(0) > r.get(0)) {
+                curX = r.get(0);
+                ry = r.get(1);
+                j++;
+            } else {
+                curX = l.get(0);
+                ly = l.get(1);
+                ry = r.get(1);
+                i++;
+                j++;
+            }
+            
+            if (res.isEmpty() || res.get(res.size() - 1).get(1) != Math.max(ly, ry)) {
+                res.add(List.of(curX, Math.max(ly, ry)));
+            }
+        }
+        
+        while (i < left.size()) {
+            res.add(left.get(i++));
+        }
+        
+        while (j < right.size()) {
+            res.add(right.get(j++));
+        }
+        return res;
     }
 }
