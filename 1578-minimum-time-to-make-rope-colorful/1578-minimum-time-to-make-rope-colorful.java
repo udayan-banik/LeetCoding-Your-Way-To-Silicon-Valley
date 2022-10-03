@@ -1,6 +1,23 @@
-// class Solution {
-//     public int minCost(String colors, int[] neededTime) {
-        
-//     }
-// }
-class Solution { public int minCost(String colors, int[] neededTime) { if (colors.length()==0) { return 0; } char prev = colors.charAt(0); int ans = 0; for (int i=1; i<neededTime.length; i++) { if (colors.charAt(i)==prev) { int curr = Math.min(neededTime[i], neededTime[i-1]); ans+=curr; neededTime[i] = Math.max(neededTime[i], neededTime[i-1]); } else { prev = colors.charAt(i); } } return ans; } }
+class Solution {
+    public int minCost(String colors, int[] neededTime) {
+        int prev = 0;
+        int res = 0;
+        char arr[] = colors.toCharArray();
+        for (int i = 1; i < arr.length; i++) {
+            if (arr[prev] != arr[i])
+               prev = i;
+            
+            else {
+                if (neededTime[prev] < neededTime[i]) {
+                    res += neededTime[prev];
+                    prev = i;
+                }
+                
+                else {
+                    res += neededTime[i];
+                }
+            }
+        }
+        return res;
+    }
+}
