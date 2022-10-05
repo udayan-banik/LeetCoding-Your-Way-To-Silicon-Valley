@@ -14,37 +14,31 @@
  * }
  */
 class Solution {
-  public TreeNode addOneRow(TreeNode root, int v, int d) {
-    if (d == 1) {
-      TreeNode newRoot = new TreeNode(v);
-      newRoot.left = root;
-      return newRoot;
+    public TreeNode addOneRow(TreeNode root, int val, int depth) {     
+        return solveItForMe(root,val,depth,1);
     }
 
-    int depth = 0;
-    Queue<TreeNode> q = new ArrayDeque<>(Arrays.asList(root));
-
-    while (!q.isEmpty()) {
-      ++depth;
-      for (int sz = q.size(); sz > 0; --sz) {
-        TreeNode node = q.poll();
-        if (node.left != null)
-          q.offer(node.left);
-        if (node.right != null)
-          q.offer(node.right);
-        if (depth == d - 1) {
-          TreeNode cachedLeft = node.left;
-          TreeNode cachedRight = node.right;
-          node.left = new TreeNode(v);
-          node.right = new TreeNode(v);
-          node.left.left = cachedLeft;
-          node.right.right = cachedRight;
+    private TreeNode solveItForMe(TreeNode root, int val, int depth, int level){
+        if (root == null) 
+        return null;
+        if (depth == 1){                            
+            TreeNode newNode = new TreeNode(val);
+            newNode.left =root;
+            return newNode;         
         }
-      }
-      if (depth == d - 1)
-        break;
-    }
+        if (level == depth-1){  
+			TreeNode newNode = new TreeNode(val);
+            newNode.left = root.left;
+            root.left = newNode;
 
-    return root;
-  }
+			newNode = new TreeNode(val);
+            newNode.right = root.right;
+            root.right = newNode;
+        }
+        else{
+            solveItForMe(root.left,val,depth,level+1);  
+            solveItForMe(root.right,val,depth,level+1);  
+        }
+        return root;
+    }
 }
