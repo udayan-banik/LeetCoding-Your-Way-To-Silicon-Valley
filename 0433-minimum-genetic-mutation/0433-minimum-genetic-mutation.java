@@ -1,34 +1,48 @@
 class Solution {
     public int minMutation(String start, String end, String[] bank) {
-        Queue<String> queue = new LinkedList<>();
-        Set<String> seen = new HashSet<>();
-        queue.add(start);
-        seen.add(start);
-        
-        int steps = 0;
-        
-        while (!queue.isEmpty()) {
-            int nodesInQueue = queue.size();
-            for (int j = 0; j < nodesInQueue; j++) {
-                String node = queue.remove();
-                if (node.equals(end)) {
-                    return steps;
-                }
-
-                for (char c: new char[] {'A', 'C', 'G', 'T'}) {
-                    for (int i = 0; i < node.length(); i++) {
-                        String neighbor = node.substring(0, i) + c + node.substring(i + 1);
-                        if (!seen.contains(neighbor) && Arrays.asList(bank).contains(neighbor)) {
-                            queue.add(neighbor);
-                            seen.add(neighbor);
-                        }
-                    }
-                }
-            }
+        int level = 0;
+        int len = bank.length;
+        char[] chr = {'A','C','G','T'};
             
-            steps++;
+        Set<String> hset = new HashSet<String>();
+        for(String s: bank){
+            hset.add(s);
         }
         
-        return -1;
+        Queue<String> queue = new LinkedList<>();
+        queue.add(start);
+        
+        while(true){
+            level++;
+            int n = queue.size();
+            
+            if(n == 0){
+                return -1;
+            }
+            
+            for(int i =0; i < n; i++){
+                char[] ch = queue.poll().toCharArray();
+                
+                for(int j =0; j < 8; j++){
+                    char org_char = ch[j];
+                    for(int c = 0; c<4; c++){
+                        ch[j] = chr[c]; 
+                        String str = String.valueOf(ch);
+                        if(str.equals(end)
+                          && hset.contains(str)){
+                            return level;
+                        }
+                        
+                        if(!hset.contains(str)){
+                            continue;
+                        }
+                        
+                        hset.remove(str);
+                        queue.add(str);
+                    }
+                    ch[j] = org_char;
+                }
+            }
+        }
     }
 }
