@@ -1,38 +1,47 @@
 class Solution {
-    private int height;
-    private int width;
-    private int[][] dp;
-    private static final int[][] dir = new int[][]{{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+    int count;
     public int uniquePathsIII(int[][] grid) {
-        this.height = grid.length;
-        this.width = grid[0].length;
-        this.dp = new int[height * width][1 << (height * width)];
-        int startX = -1, startY = -1;
-        int state = 0;
-        for(int i = 0; i < height; i++){
-            for(int j = 0; j < width; j++){
-                if(grid[i][j] == 0 || grid[i][j] == 2)
-                    state |= (1 << (i * width) + j);
-                else if(grid[i][j] == 1){
-                    startX = i;
-                    startY = j;
-                }
+        
+        int row = grid.length, col = grid[0].length;
+        int oneR = 0, oneC = 0;
+        int zero = 0;
+        count = 0;
+        for(int r = 0; r < row;++r){
+            for(int c = 0; c < col; ++c){
+                if(grid[r][c] == 1){
+                    oneR = r;
+                    oneC = c;
+                }else if(grid[r][c] == 0){
+                    ++zero;
+                }            
             }
         }
-        return dfs(grid, startX, startY, state);
+        
+        backtrack(grid, oneR - 1, oneC, zero);
+        backtrack(grid, oneR + 1, oneC, zero);
+        backtrack(grid, oneR, oneC + 1, zero);
+        backtrack(grid, oneR, oneC - 1, zero);
+        
+        return count;
     }
-    private int dfs(int[][] grid, int row, int col, int state){
-        if(dp[row * width + col][state] > 0) return dp[row * width + col][state];
-        if(state == 0 && grid[row][col] == 2) return 1;
-        int tx = 0, ty = 0;
-        for(int d = 0; d < 4; d++){
-            tx = row + dir[d][0];
-            ty = col + dir[d][1];
-            if(tx >= 0 && tx < height && ty >= 0 && ty < width && grid[tx][ty] != -1){
-                if((state & (1 << (tx * width + ty))) == 0) continue;
-                dp[row * width + col][state] += dfs(grid, tx, ty, state ^ (1 << (tx * width + ty)));
-            }
+    
+    public void backtrack(int[][] grid, int r, int c, int zero){
+        if(r < 0 || r >= grid.length || c < 0 || c >= grid[0].length || grid[r][c] == -1 || grid[r][c] == 3 || grid[r][c] == 1)
+            return;
+        
+        if(grid[r][c] == 2){
+            if(zero == 0) ++count;
+            return;
         }
-        return dp[row * width + col][state];
+        
+        if(grid[r][c] == 0)
+            --zero;
+        
+        grid[r][c] = 3;
+        backtrack(grid, r + 1, c, zero);
+        backtrack(grid, r - 1, c, zero);
+        backtrack(grid, r, c - 1, zero);
+        backtrack(grid, r, c + 1, zero);
+        grid[r][c] = 0;
     }
 }
