@@ -1,27 +1,51 @@
 class Solution {
     public List<List<String>> partition(String s) {
-        List<List<String>> result = new ArrayList<List<String>>();
-        dfs(0, result, new ArrayList<String>(), s);
-        return result;
-    }
-
-    void dfs(int start, List<List<String>> result, List<String> currentList, String s) {
-        if (start >= s.length()) result.add(new ArrayList<String>(currentList));
-        for (int end = start; end < s.length(); end++) {
-            if (isPalindrome(s, start, end)) {
-                // add current substring in the currentList
-                currentList.add(s.substring(start, end + 1));
-                dfs(end + 1, result, currentList, s);
-                // backtrack and remove the current substring from currentList
-                currentList.remove(currentList.size() - 1);
+        int len = s.length();
+        String[][] store = new String[len][len];
+        for(int i = 0 ; i < len; i++){
+            for(int j = i; j < len ; j++){
+                if(checkPalindrome(s, i, j)){
+                    store[i][j] = s.substring(i, j+1);
+                }
             }
         }
+        
+        List<List<String>> result = new ArrayList<>();
+        dfs(result, store, 0, new ArrayList<>());
+        return result;
     }
-
-    boolean isPalindrome(String s, int low, int high) {
-        while (low < high) {
-            if (s.charAt(low++) != s.charAt(high--)) return false;
+    
+    public void dfs( List<List<String>> result,  String[][] store, int pos, List<String> array){
+        if(pos >= store.length){
+            result.add(array);
         }
+        
+        if(pos == store.length-1){
+            array.add(store[pos][pos]);
+            result.add(array);
+            return;
+        }
+        
+        for(int i = pos; i < store.length; i++){
+            if(store[pos][i] != null){
+                List<String> temp = new ArrayList<>(array);
+                temp.add(store[pos][i]);
+                dfs(result, store, i+1, temp);
+            }
+        }
+        return;
+    }
+    
+    
+    
+    public boolean checkPalindrome(String s, int start, int end){
+        
+        for(int i = start, j = end; i < j; i++, j--){
+            if(s.charAt(i) != s.charAt(j)){
+                return false;
+            }
+        }
+        
         return true;
     }
 }
