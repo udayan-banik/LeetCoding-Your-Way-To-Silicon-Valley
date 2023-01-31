@@ -1,48 +1,42 @@
 class Solution {
-    public int bestTeamScore(int[] scores, int[] ages) {
-        int N = ages.length;
-        int[][] ageScorePair = new int[N][2];
+    private int findMaxScore(int[][] ageScorePair) {
+        int n = ageScorePair.length;
+        int answer = 0;
 
-        for (int i = 0; i < N; i++) {
-            ageScorePair[i][0] = scores[i];
-            ageScorePair[i][1] = ages[i];
+        int[] dp = new int[n];
+        // Initially, the maximum score for each player will be equal to the individual scores.
+        for (int i = 0; i < n; i++) {
+            dp[i] = ageScorePair[i][1];
+            answer = Math.max(answer, dp[i]);
         }
 
-        // Sort in ascending order of score and then by age.
-        Arrays.sort(ageScorePair, (a,b) -> a[0] == b[0] ? a[1]-b[1] : a[0]-b[0]);
 
-        int highestAge = 0;
-        for (int i : ages) {
-            highestAge = Math.max(highestAge, i);
-        }
-        int[] BIT = new int[highestAge + 1];
-
-        int answer = Integer.MIN_VALUE;
-        for (int[] ageScore : ageScorePair) {
-            // Maximum score up to this age might not have all the players of this age.
-            int currentBest = ageScore[0] + queryBIT(BIT, ageScore[1]);
-            // Update the tree with the current age and its best score.
-            updateBIT(BIT, ageScore[1], currentBest);
-
-            answer = Math.max(answer, currentBest);
+        for (int i = 0; i < n; i++) {
+            for (int j = i - 1; j >= 0; j--) {
+                // If the players j and i could be in the same team.
+                if (ageScorePair[i][1] >= ageScorePair[j][1]) {
+                    // Update the maximum score for the ith player.
+                    dp[i] = Math.max(dp[i], ageScorePair[i][1] + dp[j]);
+                }
+            }
+            // Maximum score among all the players.
+            answer = Math.max(answer, dp[i]);
         }
 
         return answer;
     }
 
-    // Query tree to get the maximum score up to this age.
-    private int queryBIT(int[] BIT, int age) {
-        int maxScore = Integer.MIN_VALUE;
-        for (int i = age; i > 0; i -= i & (-i)) {
-            maxScore = Math.max(maxScore, BIT[i]);
-        }
-        return maxScore;
-    }
+    public int bestTeamScore(int[] scores, int[] ages) {
+        int N = ages.length;
+        int[][] ageScorePair = new int[N][2];
 
-    // Update the maximum score for all the nodes with an age greater than the given age.
-    private void updateBIT(int[] BIT, int age, int currentBest) {
-        for (int i = age; i < BIT.length; i += i & (-i)) {
-            BIT[i] = Math.max(BIT[i], currentBest);
+        for (int i = 0; i < N; i++) {
+            ageScorePair[i][0] = ages[i];
+            ageScorePair[i][1] = scores[i];
         }
+
+        // Sort in ascending order of age and then by score.
+        Arrays.sort(ageScorePair, (a,b) -> a[0] == b[0] ? a[1]-b[1] : a[0]-b[0]);
+        return findMaxScore(ageScorePair);
     }
 }
