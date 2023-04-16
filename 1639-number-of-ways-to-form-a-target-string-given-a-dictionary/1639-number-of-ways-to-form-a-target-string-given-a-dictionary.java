@@ -1,28 +1,34 @@
-// bottom up dp
-
 class Solution {
     public int numWays(String[] words, String target) {
-        int alphabet = 26;
-        int mod = 1000000007;
-        int m = target.length(), k = words[0].length();
-        int cnt[][] = new int[alphabet][k];
-        for (int j = 0; j < k; j++) {
-            for (String word : words) {
-                cnt[word.charAt(j) - 'a'][j]++;
+        if (words[0].length() < target.length()) {
+            return 0;
+        }
+
+        int mod = (int) (1e9 + 7);
+
+        int len = words[0].length();
+
+        int[][] charCounts = new int[len][26];
+
+        for (String word : words) {
+            for (int i = 0; i < len; i++) {
+                charCounts[i][word.charAt(i) - 'a']++;
             }
         }
-        long dp[][] = new long[m + 1][k + 1];
-        dp[0][0] = 1;
-        for (int i = 0; i <= m; i++) {
-            for (int j = 0; j < k; j++) {
-                if (i < m) {
-                    dp[i + 1][j + 1] += cnt[target.charAt(i) - 'a'][j] * dp[i][j];
-                    dp[i + 1][j + 1] %= mod;
-                }
-                dp[i][j + 1] += dp[i][j];
-                dp[i][j + 1] %= mod;
+
+        int[] dp = new int[len - target.length() + 2];
+        Arrays.fill(dp, 1);
+
+        for (int i = target.length() - 1; i >= 0; i--) {
+            int[] temp = new int[len - target.length() + 2];
+            for (int j = dp.length - 2; j >= 0; j--) {
+                int count = (int) (((long) charCounts[len - (target.length() - i) - (dp.length - 2 - j)][target.charAt(i) - 'a'] * dp[j]) % mod);
+                temp[j] = (temp[j + 1] + count) % mod;
             }
+            temp[temp.length - 1] = 1;
+            dp = temp;
         }
-        return (int)dp[m][k];
+
+        return dp[0];
     }
 }
