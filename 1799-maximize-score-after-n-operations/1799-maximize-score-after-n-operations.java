@@ -2,52 +2,30 @@
 
 class Solution {
     public int maxScore(int[] nums) {
-        int maxStates = 1 << nums.length; // 2^(nums array size)
-        int finalMask = maxStates - 1;
-
-        // 'dp[i]' stores max score we can get after picking remaining numbers represented by 'i'.
-        int[] dp = new int[maxStates];
-
-        // Iterate on all possible states one-by-one.
-        for (int state = finalMask; state >= 0; state--) {
-            // If we have picked all numbers, we know we can't get more score as no number is remaining.
-            if (state == finalMask) {
-                dp[state] = 0;
-                continue;
+        int n = nums.length;
+        int[][] gcd = new int[n][n];
+        for(int i = 0; i < n; i++){
+            for(int j = 0; j < n; j++){
+                gcd[i][j] = gcd(nums[i],nums[j]);
             }
-
-            int numbersTaken = Integer.bitCount(state);
-            int pairsFormed = numbersTaken / 2;
-            // States representing even numbers are taken are only valid.
-            if (numbersTaken % 2 != 0) {
-                continue;
-            }
-
-            // We have picked 'pairsFormed' pairs, we try all combinations of one more pair now.
-            // We iterate on two numbers using two nested for loops.
-            for (int firstIndex = 0; firstIndex < nums.length; firstIndex++) {
-                for (int secondIndex = firstIndex + 1; secondIndex < nums.length; secondIndex++) {
-                    // We only choose those numbers which were not already picked.
-                    if (((state >> firstIndex) & 1) == 1 || ((state >> secondIndex) & 1) == 1) {
-                        continue;
-                    }
-                    int currentScore = (pairsFormed + 1) * gcd(nums[firstIndex], nums[secondIndex]);
-                    int stateAfterPickingCurrPair = state | (1 << firstIndex) | (1 << secondIndex);
-                    int remainingScore = dp[stateAfterPickingCurrPair];
-                    dp[state] = Math.max(dp[state], currentScore + remainingScore);
+        }
+        
+        int[] dp = new int[1<<n];
+        for(int i = 0; i < (1<<n); i++){
+            int cnt = Integer.bitCount(i);
+            if(cnt%2!=0) continue;
+            for(int x = 0; x < n; x++){
+                if((i&(1<<x))>0) continue;
+                for(int y = x+1; y < n; y++){
+                    if((i&(1<<y))>0) continue;
+                    dp[i|(1<<x)|(1<<y)] = Math.max(dp[i]+gcd[x][y]*(cnt/2+1),dp[i|(1<<x)|(1<<y)]);
                 }
             }
         }
-
-        // Returning score we get from 'n' remaining numbers of array.
-        return dp[0];
+        return dp[(1<<n)-1];
     }
-
-    // Helper method to calculate GCD using Euclidean algorithm.
-    private int gcd(int a, int b) {
-        if (b == 0) {
-            return a;
-        }
-        return gcd(b, a % b);
+    
+    private int gcd(int a, int b){
+        return b==0?a:gcd(b,a%b);
     }
 }
