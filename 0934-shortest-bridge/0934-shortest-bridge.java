@@ -1,63 +1,61 @@
-//dfs + bfs
 class Solution {
-    private List<int[]> bfsQueue;
-
-    // Recursively check the neighboring land cell of current cell grid[x][y] and add all
-    // land cells of island A to bfsQueue.
-    private void dfs(int[][] grid, int x, int y, int n) {
-        grid[x][y] = 2;
-        bfsQueue.add(new int[]{x, y});
-        for (int[] pair : new int[][]{{x + 1, y}, {x - 1, y}, {x, y + 1}, {x, y - 1}}) {
-            int curX = pair[0], curY = pair[1];
-            if (0 <= curX && curX < n && 0 <= curY && curY < n && grid[curX][curY] == 1) {
-                dfs(grid, curX, curY, n);
-            }
-        }
+  private static final int[][] DIRECTIONS = new int[][] { {1,0}, {-1,0}, {0,1} };
+  private static final int[][] ALLDIRECTIONS = new int[][] { {1,0}, {-1,0}, {0,1} , {0, -1} };
+  public int shortestBridge(int[][] grid) {
+    int[] start = findLeftMostLandCoord(grid);
+    // assumes thereare two islands
+    grid[start[0]][start[1]] = 2;
+    Queue<int[]> seed = new LinkedList<>();
+    seed.offer(start);
+    Queue<int[]> que = expand(grid, seed, false);
+    int count = 0;
+    while(!que.isEmpty()) {
+      count++;
+      que = expand(grid, que, true);
     }
+    return count;
     
-    // Find any land cell, and we treat it as a cell of island A.
-    public int shortestBridge(int[][] grid) {    
-        int n = grid.length;
-        int firstX = -1, firstY = -1;
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (grid[i][j] == 1) {
-                    firstX = i;
-                    firstY = j;
-                    break;
-                }
-            }
+  }
+  
+  
+  private int[] findLeftMostLandCoord(int[][] grid) {
+    for (int c=0;c<grid[0].length;c++) {
+      for (int r=0;r<grid.length;r++) {
+        if (grid[r][c] == 1) {
+          return new int[] {r, c};
         }
-        
-        // Add all land cells of island A to bfsQueue.
-        bfsQueue = new ArrayList<>();
-        dfs(grid, firstX, firstY, n);
-        
-        int distance = 0;
-        while (!bfsQueue.isEmpty()) {
-            List<int[]> newBfs = new ArrayList<>();
-            for (int[] pair : bfsQueue) {
-                int x = pair[0], y = pair[1];
-                for (int[] nextPair : new int[][]{{x + 1, y}, {x - 1, y}, {x, y + 1}, {x, y - 1}}) {
-                    int curX = nextPair[0], curY = nextPair[1];
-                    if (0 <= curX && curX < n && 0 <= curY && curY < n) {
-                        if (grid[curX][curY] == 1) {
-                            return distance;
-                        } else if (grid[curX][curY] == 0) {
-                            newBfs.add(nextPair);
-                            grid[curX][curY] = -1;
-                        }
-                    }
-                }
-            }
+      }
+    }
+    return new int[] {-1, -1};
+  }
+  
 
-            // Once we finish one round without finding land cells of island B, we will
-            // start the next round on all water cells that are 1 cell further away from
-            // island A and increment the distance by 1.
-            bfsQueue = newBfs;
-            distance++;
+  
+  private Queue<int[]> expand(int[][] grid, Queue<int[]> seed, boolean shouldDrainOn1) {
+    Queue<int[]> border = new LinkedList<>();
+    while(!seed.isEmpty()) {
+      int[] current = seed.poll();
+      for (int[] direction : Solution.ALLDIRECTIONS) {
+        int newR = current[0] + direction[0];
+        int newC = current[1] + direction[1];
+        if (withinBounds(grid, newR, newC)) {
+          if (grid[newR][newC] == 1) {
+            if (shouldDrainOn1) {
+              return new LinkedList<int[]>();
+            }
+            seed.offer(new int[] { newR, newC});
+            grid[newR][newC] = 2;
+          } else if (grid[newR][newC] == 0) {
+            grid[newR][newC] = 3;
+            border.offer(new int[] { newR, newC});
+          }
         }
-        
-        return distance;
-    }   
+      }
+    }
+    return border;
+  }
+  
+  private boolean withinBounds(int[][] grid, int r, int c) {
+    return r >=0 && r < grid.length && c >= 0 && c < grid[r].length;
+  }
 }
