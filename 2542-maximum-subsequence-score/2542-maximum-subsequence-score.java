@@ -1,36 +1,47 @@
-//priority queue
 class Solution {
     public long maxScore(int[] nums1, int[] nums2, int k) {
-        // Sort pair (nums1[i], nums2[i]) by nums2[i] in decreasing order.
-        int n = nums1.length;
-        int[][] pairs = new int[n][2];
-        for (int i = 0; i < n; ++i) {
-            pairs[i] = new int[]{nums1[i], nums2[i]};
+         Pair[] arr = new Pair[nums1.length]; 
+         for(int i =0; i<nums1.length; i++){
+              arr[i] = new Pair(nums1[i], nums2[i]); 
+         }
+          Arrays.sort(arr,new Comparator<Pair>(){
+            public int compare(Pair p1, Pair p2){
+                 return p2.n2-p1.n2; 
+            }
+        } ); 
+        long ans = -1; 
+        PriorityQueue<Integer>  pq = new PriorityQueue<>(); 
+         long  s =0; 
+        for(int i =0; i<k; i++){
+             pq.add(arr[i].n1); 
+             s  +=arr[i].n1; 
         }
-        Arrays.sort(pairs, (a, b) -> b[1] - a[1]);
+        ans= Math.max(ans, (s* arr[k-1].n2)); 
+
+         for(int i = k; i<arr.length; i++){
+              if(arr[i].n1>pq.peek()){
+                   int r = pq.remove(); 
+                   s = s-r;
+                   pq.add(arr[i].n1); 
+                   s+=arr[i].n1; 
+              }
+                ans= Math.max(ans, (s* arr[i].n2)); 
+
+              
+         }
+          return ans; 
+    
+
         
-        // Use a min-heap to maintain the top k elements.
-        PriorityQueue<Integer> topKHeap = new PriorityQueue<>(k, (a, b) -> a - b);
-        long topKSum = 0;
-        for (int i = 0; i < k; ++i) {
-            topKSum += pairs[i][0];
-            topKHeap.add(pairs[i][0]);
-        }
-        
-        // The score of the first k pairs.
-        long answer = topKSum * pairs[k - 1][1];
-        
-        // Iterate over every nums2[i] as minimum from nums2.
-        for (int i = k; i < n; ++i) {
-            // Remove the smallest integer from the previous top k elements
-            // then ddd nums1[i] to the top k elements.
-            topKSum += pairs[i][0] - topKHeap.poll();
-            topKHeap.add(pairs[i][0]);
-            
-            // Update answer as the maximum score.
-            answer = Math.max(answer, topKSum * pairs[i][1]);
-        }
-        
-        return answer;
+    
     }
 }
+ class Pair{
+      int n1; 
+      int n2; 
+      Pair(int n1,int n2){
+           this.n1 = n1; 
+           this.n2 = n2; 
+
+      }
+ }
